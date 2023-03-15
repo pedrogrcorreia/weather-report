@@ -9,14 +9,14 @@ geocode(process.argv[2], (error, data) => {
     if(error){
         return console.log(error)
     }
-    forecast(data.latitude, data.longitude, (error, forecastData) => {
+    forecast(data.latitude, data.longitude, (error, {temp, feels, description}) => {
         if(error){
             return console.log(error)
         }
         console.log('Location: ' + data.location)
-        console.log('Temperature: ' + forecastData.temp)
-        console.log('Feels Like: ' + forecastData.feels)
-        console.log('Description: ' + forecastData.description)
+        console.log('Temperature: ' + temp)
+        console.log('Feels Like: ' + feels)
+        console.log('Description: ' + description)
     })
 })
 
