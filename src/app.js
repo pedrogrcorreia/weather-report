@@ -1,6 +1,8 @@
 const path = require('path')
 const express = require('express')
 const hbs = require('hbs')
+const geocode = require('./../utils/geocode')
+const forecast = require('./../utils/forecast')
 
 const app = express()
 
@@ -33,19 +35,45 @@ app.get('/about', (req, res) => {
 app.get('/help', (req, res) => {
     res.render('help', {
         title: 'Help',
-        name: 'Pedro Correia'
+        name: 'Pedro Correia',
+        helpText: 'This is some helpful text.',
     })
 })
 
 app.get('/weather', (req, res) => {
-    res.send({
-        forecast: 'Weather forecast',
-        location: 'Coimbra',
+    if(!req.query.address){
+        return res.send({
+            error: 'You must provide an address!'
+        })
+    }
+
+    geocode(req.query.address, (error, {latitude, longitude, location} = {}) => {
+        if(error){
+            return res.send({
+                error
+            })
+        }
+        forecast(latitude, longitude, (error, forecastData) => {
+            if(error){
+                return res.send({
+                    error
+                })
+            }
+            res.send({
+                forecastData,
+                location,
+                address: req.query.address
+            })
+        })
     })
 })
 
 app.get('*', (req, res) => {
-    res.send("404: Page not found!")
+    res.render('404', {
+        title: '404',
+        name: 'Andrew Mead',
+        errorMessage: 'Page not found.'
+    })
 })
 
 app.listen(3000, () => {
